@@ -1,9 +1,8 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
-import { Alert, Spinner } from 'react-bootstrap';
+import { Alert, Spinner, Card, Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { URL } from '../Utils/Config';
-import { Line } from 'react-chartjs-2';
 import UserContext from '../../context/UserContext';
 import ChessBG from '../../assets/chess_bg_1.jpg';
 
@@ -11,70 +10,39 @@ function UserProfile(props) {
     const [user, setUser] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [validUser, setValidUser] = useState(false);
-    const [data, setData] = useState({});
+    const [stats, setStats] = useState({
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0
+    });
 
     const User = useContext(UserContext);
     const userId = props.match.params.userId;
-
-    // user rating graph options.
-    const options = {
-        scales: {
-            xAxes: [
-                {
-                    ticks: {
-                        display: false, //this will remove the x-axis label
-                    },
-                },
-            ],
-        },
-    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const res = await axios.get(`${URL}/u/getUserWithMatches`, { params: { userId: props.match.params.userId } });
+                
+                // Calculate game statistics
+                const matches = res.data.matches || [];
+                const stats = {
+                    totalGames: matches.length,
+                    wins: matches.filter(match => {
+                        if (match.winner === 'white') return match.whitePlayer._id === userId;
+                        if (match.winner === 'black') return match.blackPlayer._id === userId;
+                        return false;
+                    }).length,
+                    losses: matches.filter(match => {
+                        if (match.winner === 'white') return match.blackPlayer._id === userId;
+                        if (match.winner === 'black') return match.whitePlayer._id === userId;
+                        return false;
+                    }).length,
+                    draws: matches.filter(match => match.winner === 'draw').length
+                };
 
-                // calcuate the rating frmo match history
-                // starting rating is 1000
-                let rating = 1000;
-                let height = [rating];
-                let matchData = [''];
-
-                for (let i = 0; i < res.data.matches.length; i++) {
-                    // if match has finished then continue becuase it has no effect on rating.
-                    if (res.data.matches[i].winner === '') continue;
-
-                    // get the opponent naame to show in rating graph.
-                    let opponent = '';
-                    if (res.data.matches[i].blackPlayer._id == userId) opponent = res.data.matches[i].whitePlayer.username;
-                    else opponent = res.data.matches[i].blackPlayer.username;
-
-                    // if user won this match increament rating by 50 or decreament by 50.
-                    if (res.data.matches[i].winner === 'white') {
-                        if (res.data.matches[i].whitePlayer._id == userId) rating += 50;
-                        else rating -= 50;
-                    } else if (res.data.matches[i].winner === 'black') {
-                        if (res.data.matches[i].blackPlayer._id == userId) rating += 50;
-                        else rating -= 50;
-                    } else if (res.data.matches[i].winner === 'draw') {
-                    }
-
-                    height.push(rating);
-                    // format opponent name and match time and then put it in mactch data.
-                    matchData.push('Vs ' + opponent + '\n' + res.data.matches[i].createdAt.substr(0, 16).replace('T', ' | '));
-                }
-
-                setData({
-                    labels: matchData,
-                    datasets: [
-                        {
-                            label: 'Rating',
-                            data: height,
-                            backgroundColor: 'rgba(147, 50, 158, 0.4)',
-                            borderColor: 'rgba(255, 0, 92, 0.5)',
-                        },
-                    ],
-                });
+                setStats(stats);
                 setUser(res.data);
                 setIsLoading(false);
                 setValidUser(true);
@@ -98,12 +66,12 @@ function UserProfile(props) {
     }
 
     return (
-        <div className='profile-container'>
-            <div>
+        <Container className="mt-4">
+            <div className="mb-4">
                 <ul className='nav nav-tabs'>
                     <li className='nav-item'>
                         <Link className='nav-link active profile-active-tab' aria-current='page' to={`/u/${userId}`}>
-                            View Profile
+                            Profile
                         </Link>
                     </li>
                     <li className='nav-item'>
@@ -121,21 +89,59 @@ function UserProfile(props) {
                 </ul>
             </div>
 
-            <div id='profile-sub-container'>
-                <div id='profile-user-detail'>
-                    <div id='profile-picture-container'>
-                        <img src={ChessBG} alt='user profile pic' />
-                    </div>
-                    <div id='profile-username-rating'>
-                        <div id='profile-username'>Username: {user.username}</div>
-                        <div id='profile-rating'>Rating: {user.rating}</div>
-                    </div>
-                </div>
-                <div id='user-graph-container'>
-                    <Line data={data} options={options} />
-                </div>
-            </div>
-        </div>
+            <Card className="profile-card">
+                <Card.Body>
+                    <Row>
+                        <Col md={4} className="text-center">
+                            <div className="profile-picture-container mb-3">
+                                <img src={ChessBG} alt='user profile' className="profile-picture" />
+                            </div>
+                            <h3>{user.username}</h3>
+                            <div className="rating-badge">
+                                Rating: {user.rating || 1000}
+                            </div>
+                        </Col>
+                        <Col md={8}>
+                            <h4 className="mb-4">Game Statistics</h4>
+                            <Row>
+                                <Col md={6} className="mb-3">
+                                    <Card className="stat-card">
+                                        <Card.Body>
+                                            <h5>Total Games</h5>
+                                            <h3>{stats.totalGames}</h3>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                                <Col md={6} className="mb-3">
+                                    <Card className="stat-card">
+                                        <Card.Body>
+                                            <h5>Wins</h5>
+                                            <h3>{stats.wins}</h3>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                                <Col md={6} className="mb-3">
+                                    <Card className="stat-card">
+                                        <Card.Body>
+                                            <h5>Losses</h5>
+                                            <h3>{stats.losses}</h3>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                                <Col md={6} className="mb-3">
+                                    <Card className="stat-card">
+                                        <Card.Body>
+                                            <h5>Draws</h5>
+                                            <h3>{stats.draws}</h3>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 }
 

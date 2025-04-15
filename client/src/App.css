@@ -1,0 +1,76 @@
+/* Profile Styles */
+.profile-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-picture-container {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #f0f0f0;
+}
+
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rating-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #007bff;
+    color: white;
+    border-radius: 20px;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h5 {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card h3 {
+    color: #007bff;
+    margin-bottom: 0;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    background: none;
+    border: none;
+    border-bottom: 2px solid #007bff;
+    margin-bottom: -2px;
+}
+
+.profile-active-tab {
+    font-weight: bold;
+} 

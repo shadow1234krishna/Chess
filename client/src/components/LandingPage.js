@@ -10,7 +10,7 @@ function LandingPage() {
     const User = useContext(UserContext);
    
     let index = 0;
-    const text = 'Chess Champ';
+    const text = 'Chess Santa';
 
     const history = useHistory();
     const messageRef = useRef(message);

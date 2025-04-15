@@ -26,7 +26,7 @@ function Header() {
         <nav className='navbar navbar-dark bg-primary'>
             <div style={{ display: 'flex' }}>
                 <Link to='/'>
-                    <div className='navbar-brand title'>Chess Champ</div>
+                    <div className='navbar-brand title'>Chess Santa</div>
                 </Link>
                 <Link to='/'>
                     <div className='navbar-item-div'>Home</div>
